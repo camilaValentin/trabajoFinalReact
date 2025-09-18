@@ -1,0 +1,26 @@
+#root {
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+body {
+  background-color: #ece1cd;
+}
+
+.logo {
+  height: 6.25rem;
+}
+
+.carrito {
+  height: 2.3rem;
+}
+
+.navbar-custom {
+  background-color: #faf7f2;
+}
+
+.d-flex img {
+  width: auto;
+  cursor: pointer;
+}
