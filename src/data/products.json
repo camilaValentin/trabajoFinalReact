@@ -1,0 +1,67 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Alimento balanceado para perros - Pedigree",
+      "category": "Alimento",
+      "description": "Bolsa de 20kg, sabor carne y vegetales. Para perros adultos.",
+      "price": 25000,
+      "stock": 15,
+      "image": "https://http2.mlstatic.com/D_NQ_NP_641358-MLU70080266990_062023-O.webp"
+    },
+    {
+      "id": 2,
+      "name": "Alimento balanceado para gatos - Whiskas",
+      "category": "Alimento",
+      "description": "Bolsa de 10kg, sabor pescado. Para gatos adultos.",
+      "price": 18000,
+      "stock": 20,
+      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDT45eARzg93R8uNUL9GOb72ZNHGB-MAWhZw&s"
+    },
+    {
+      "id": 3,
+      "name": "Juguete de goma para perros - Hueso",
+      "category": "Juguetes",
+      "description": "Hueso de goma resistente, ideal para mordida.",
+      "price": 3500,
+      "stock": 50,
+      "image": "https://acdn-us.mitiendanube.com/stores/120/791/products/413-hueso-de-goma-con-chifle1-fddbd91e1c84a57ba315288256664740-640-0.jpg"
+    },
+    {
+      "id": 4,
+      "name": "Cama para gatos y perros pequeños",
+      "category": "Accesorios",
+      "description": "Cama acolchonada, 60x40cm, color gris.",
+      "price": 12000,
+      "stock": 8,
+      "image": "https://http2.mlstatic.com/D_NQ_NP_800786-MLA92301669244_092025-O.webp"
+    },
+    {
+      "id": 5,
+      "name": "Rascador para gatos",
+      "category": "Accesorios",
+      "description": "Rascador con sisal y base de madera, 80cm de altura.",
+      "price": 15000,
+      "stock": 5,
+      "image": "https://nutrican.com.ar/wp-content/uploads/2023/09/rascador-1021033.png"
+    },
+    {
+      "id": 6,
+      "name": "Collar para perros - Ajustable",
+      "category": "Accesorios",
+      "description": "Collar de nylon, ajustable, varios colores.",
+      "price": 4500,
+      "stock": 30,
+      "image": "https://catycanar.vtexassets.com/arquivos/ids/162983/10226.jpg?v=637786405604700000"
+    },
+    {
+      "id": 7,
+      "name": "Shampoo para perros",
+      "category": "Higiene",
+      "description": "Shampoo neutro para todas las razas, 500ml.",
+      "price": 3000,
+      "stock": 25,
+      "image": "https://acdn-us.mitiendanube.com/stores/197/359/products/osspret-cachorro1-a1abfdd38ccbfd1bf216934871943655-1024-1024.jpg"
+    }
+  ]
+}
