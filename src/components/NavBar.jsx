@@ -6,16 +6,16 @@ import data from "../data/products.json";
 
 export const NavBar = () => {
   const [products, setProducts] = useState([]);
-  const { categoryId } = useParams();
+  const { id } = useParams();
 
-  const categories = data.products.map((item) => item.category);
+  const categories = data.map((i) => i.category);
   const uniqueCategories = [...new Set(categories)];
 
   const fetchProducts = () => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        if (data.products) {
-          resolve(data.products);
+        if (data) {
+          resolve(data);
         } else {
           reject("No se encontraron productos");
         }
@@ -26,20 +26,18 @@ export const NavBar = () => {
   useEffect(() => {
     fetchProducts()
       .then((data) => {
-        if (categoryId) {
-          const filtered = data.filter(
-            (product) => product.category === categoryId
-          );
+        if (id) {
+          const filtered = data.filter((product) => product.category === id);
           setProducts(filtered);
         } else {
           setProducts(data);
         }
       })
       .catch((error) => console.error(error));
-  }, [categoryId]);
+  }, [id]);
 
   return (
-    <nav className="navbar navbar-expand-lg w-100 navbar-custom">
+    <nav className="navbar navbar-expand-lg w-100 navbar-custom fixed-top">
       <div className="container-fluid">
         <NavLink className="navbar-brand" to="/">
           <img src="logo.png" alt="Logo empresa" className="logo" />
