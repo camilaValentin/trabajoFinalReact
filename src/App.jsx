@@ -1,26 +1,27 @@
 import "./App.css";
-import { ItemListContainer } from "./views/ItemListContainer";
-import { NavBar } from "./components/NavBar";
-import { Contact } from "./views/Contact";
-import { Home } from "./views/Home";
-import { Error404 } from "./views/Error404";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-function App() {
+import { NavBar } from "./components/NavBar";
+import { ItemListContainer } from "./views/ItemListContainer";
+import { ItemDetailContainer } from "./components/item/ItemDetailContainer";
+import { Cart } from "./components/cart/Cart";
+import { Error404 } from "./views/Error404";
+
+import { CartProvider } from "./components/cart/CartContext";
+
+export default function App() {
   return (
-    <>
+    <CartProvider>
       <BrowserRouter>
         <NavBar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products/:id" element={<ItemListContainer />} />
-          <Route path="/category/:id" element={<Home />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/" element={<ItemListContainer greeting="Bienvenido a Mima Petshop" />} />
+          <Route path="/category/:id" element={<ItemListContainer />} />
+          <Route path="/products/:id" element={<ItemDetailContainer />} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="*" element={<Error404 />} />
         </Routes>
       </BrowserRouter>
-    </>
+    </CartProvider>
   );
 }
-
-export default App;

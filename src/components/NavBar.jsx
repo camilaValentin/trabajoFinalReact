@@ -1,46 +1,34 @@
-import { useState, useEffect } from "react";
-import { NavLink, useParams } from "react-router-dom";
-import { Carrito } from "./CartWidget";
-import "../App.css";
-import data from "../data/products.json";
+// src/components/NavBar.jsx
+import { useState, useEffect } from "react"
+import { NavLink } from "react-router-dom"
+import { collection, getDocs } from "firebase/firestore"
+import { db } from "../firebase"
+import { CartWidget } from "./cart/CartWidget"
+import "../App.css"
 
 export const NavBar = () => {
-  const [products, setProducts] = useState([]);
-  const { id } = useParams();
-
-  const categories = data.map((i) => i.category);
-  const uniqueCategories = [...new Set(categories)];
-
-  const fetchProducts = () => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (data) {
-          resolve(data);
-        } else {
-          reject("No se encontraron productos");
-        }
-      }, 1000);
-    });
-  };
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchProducts()
-      .then((data) => {
-        if (id) {
-          const filtered = data.filter((product) => product.category === id);
-          setProducts(filtered);
-        } else {
-          setProducts(data);
-        }
-      })
-      .catch((error) => console.error(error));
-  }, [id]);
+    const run = async () => {
+      try {
+        const snap = await getDocs(collection(db, "items"))
+        const all = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        const cats = Array.from(new Set(all.map(p => p.categoryId))).filter(Boolean)
+        setCategories(cats)
+      } finally {
+        setLoading(false)
+      }
+    }
+    run()
+  }, [])
 
   return (
     <nav className="navbar navbar-expand-lg w-100 navbar-custom fixed-top">
       <div className="container-fluid">
         <NavLink className="navbar-brand" to="/">
-          <img src="logo.png" alt="Logo empresa" className="logo" />
+          <img src="/logo.png" alt="Logo empresa" className="logo" />
         </NavLink>
 
         <button
@@ -58,31 +46,32 @@ export const NavBar = () => {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              <NavLink className="nav-link" to="/">
-                Inicio
-              </NavLink>
+              <NavLink className="nav-link" to="/">Inicio</NavLink>
             </li>
 
-            {uniqueCategories.map((cat, index) => (
-              <li className="nav-item" key={index}>
-                <NavLink className="nav-link" to={`/category/${cat}`}>
-                  {cat}
-                </NavLink>
+            {loading ? (
+              <li className="nav-item">
+                <span className="nav-link disabled">Cargando categorías…</span>
               </li>
-            ))}
-
-            <li className="nav-item">
-              <NavLink className="nav-link" to="/contact">
-                Contacto
-              </NavLink>
-            </li>
+            ) : (
+              categories.map(cat => (
+                <li className="nav-item" key={cat}>
+                  <NavLink
+                    className="nav-link"
+                    to={`/category/${encodeURIComponent(cat)}`}
+                  >
+                    {cat}
+                  </NavLink>
+                </li>
+              ))
+            )}
           </ul>
 
           <div className="d-flex">
-            <Carrito />
+            <CartWidget />
           </div>
         </div>
       </div>
     </nav>
-  );
-};
+  )
+}

@@ -1,44 +1,70 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import products from "../data/products.json";
+import { Container, Spinner } from "react-bootstrap";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../firebase";
+import { ItemList } from "../components/item/ItemList";
 
-export const ItemListContainer = () => {
-  const [product, setProduct] = useState(null);
+export const ItemListContainer = ({ greeting }) => {
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { id } = useParams();
+  const [error, setError] = useState(null);
+  const { id } = useParams(); 
 
-  const fetchProduct = (id) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const found = products.find((p) => p.id === Number(id));
-        if (found) {
-          resolve(found);
-        } else {
-          reject("Producto no encontrado");
-        }
-      }, 1000);
-    });
-  };
   useEffect(() => {
-    fetchProduct(id)
-      .then((res) => setProduct(res))
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        if (!id) {
+          const snap = await getDocs(collection(db, "items"));
+          const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          if (data.length === 0) setError("No hay productos disponibles");
+          setItems(data);
+          return;
+        }
+
+        const category = decodeURIComponent(id).trim();
+        const q = query(collection(db, "items"), where("categoryId", "==", category));
+        const qsnap = await getDocs(q);
+
+        if (qsnap.empty) {
+          setItems([]);
+          setError(`No hay productos en la categoría "${category}"`);
+        } else {
+          setItems(qsnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }
+      } catch {
+        setError("Error al cargar productos");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [id]);
 
   if (loading) {
-    return "Cargando...";
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ height: "50vh" }}>
+        <Spinner animation="border" variant="primary" role="status">
+          <span className="visually-hidden">Cargando...</span>
+        </Spinner>
+      </Container>
+    );
   }
-  if (!product) {
-    return "No se encontró el producto";
+
+  if (error) {
+    return (
+      <Container className="text-center my-5">
+        <p style={{ color: "red" }}>{error}</p>
+      </Container>
+    );
   }
 
   return (
-    <main>
-      {" "}
-      <h1>Detalle del producto:</h1> <h2>{product.name}</h2>{" "}
-      <img width={300} src={product.image} alt={product.name} />{" "}
-      <p>{product.description}</p>{" "}
-    </main>
+    <Container className="py-4">
+      {greeting && <h1 className="text-center mb-4">{greeting}</h1>}
+      <ItemList items={items} />
+    </Container>
   );
 };
