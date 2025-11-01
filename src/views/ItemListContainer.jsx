@@ -1,47 +1,58 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Container, Spinner } from "react-bootstrap";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../firebase";
-import { ItemList } from "../components/item/ItemList";
+import { useState, useEffect } from "react"
+import { useParams } from "react-router-dom"
+import { Container, Spinner } from "react-bootstrap"
+import {
+  collection,
+  query,
+  where,
+  onSnapshot
+} from "firebase/firestore"
+import { db } from "../firebase"
+import { ItemList } from "../components/item/ItemList"
 
 export const ItemListContainer = ({ greeting }) => {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { id } = useParams(); 
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const { id } = useParams() 
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    setLoading(true)
+    setError(null)
 
-        if (!id) {
-          const snap = await getDocs(collection(db, "items"));
-          const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          if (data.length === 0) setError("No hay productos disponibles");
-          setItems(data);
-          return;
-        }
+    let q
 
-        const category = decodeURIComponent(id).trim();
-        const q = query(collection(db, "items"), where("categoryId", "==", category));
-        const qsnap = await getDocs(q);
+    if (id) {
+      const category = decodeURIComponent(id).trim()
+      q = query(collection(db, "items"), where("categoryId", "==", category))
+    } else {
+      q = collection(db, "items")
+    }
 
-        if (qsnap.empty) {
-          setItems([]);
-          setError(`No hay productos en la categoría "${category}"`);
+    const unsubscribe = onSnapshot(
+      q,
+      snapshot => {
+        if (snapshot.empty) {
+          setItems([])
+          setError("No hay productos disponibles")
         } else {
-          setItems(qsnap.docs.map(d => ({ id: d.id, ...d.data() })));
+          const productos = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          setItems(productos)
         }
-      } catch {
-        setError("Error al cargar productos");
-      } finally {
-        setLoading(false);
+        setLoading(false)
+      },
+      err => {
+        console.error(err)
+        setError("Error al obtener los productos")
+        setLoading(false)
       }
-    })();
-  }, [id]);
+    )
+
+    return () => unsubscribe()
+  }, [id])
 
   if (loading) {
     return (
@@ -50,7 +61,7 @@ export const ItemListContainer = ({ greeting }) => {
           <span className="visually-hidden">Cargando...</span>
         </Spinner>
       </Container>
-    );
+    )
   }
 
   if (error) {
@@ -58,7 +69,7 @@ export const ItemListContainer = ({ greeting }) => {
       <Container className="text-center my-5">
         <p style={{ color: "red" }}>{error}</p>
       </Container>
-    );
+    )
   }
 
   return (
@@ -66,5 +77,5 @@ export const ItemListContainer = ({ greeting }) => {
       {greeting && <h1 className="text-center mb-4">{greeting}</h1>}
       <ItemList items={items} />
     </Container>
-  );
-};
+  )
+}

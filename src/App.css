@@ -97,3 +97,20 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.card {
+  border-radius: 12px;
+}
+
+.card img {
+  border-radius: 12px 0 0 12px;
+}
+
+.card-body {
+  padding: 1.2rem 1.5rem;
+}
+
+button.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: #fff;
+}

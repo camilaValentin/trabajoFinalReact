@@ -1,65 +1,51 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
-import InputGroup from "react-bootstrap/InputGroup"
-import Button from "react-bootstrap/Button"
-import Form from "react-bootstrap/Form"
+import { Button, InputGroup, Form } from "react-bootstrap"
 
-export const ItemCount = ({ stock, onAdd, initial }) => {
-    const [counter, setCounter] = useState(initial ?? 0)
+export const ItemCount = ({ stock = 0, initial = 1, onAdd }) => {
+  const [count, setCount] = useState(initial)
 
-    const handleIncreaseCount = () => {
-        if (stock > counter) setCounter(counter + 1)
+  const increase = () => {
+    if (count < stock) setCount(count + 1)
+  }
+
+  const decrease = () => {
+    if (count > 1) setCount(count - 1)
+  }
+
+  const handleChange = e => {
+    const value = Number(e.target.value)
+    if (!isNaN(value) && value >= 1 && value <= stock) {
+      setCount(value)
     }
+  }
 
-    const handleDecreaseCount = () => {
-        if (counter > 0) setCounter(counter - 1)
-    }
-
-    return (
-        <section className="col-12 col-sm-6 col-md-3 mb-4">
-            {stock > 0 ? (
-                <>
-                    <InputGroup>
-                        <Button
-                            variant="primary"
-                            onClick={handleIncreaseCount}
-                        >
-                            +
-                        </Button>
-                        <Form.Control
-                            value={counter}
-                            className="text-center"
-                        />
-                        <Button
-                            variant="primary"
-                            onClick={handleDecreaseCount}
-                        >
-                            -
-                        </Button>
-                    </InputGroup>
-                    {!!counter && (
-                        <Button
-                            variant="outline-primary"
-                            className="mt-4"
-                            onClick={() => onAdd(counter)}
-                        >
-                            Agregar al carrito
-                        </Button>
-                    )}
-                    <div className="mt-4">
-                        Stock disponible: {stock - counter}
-                    </div>
-                </>
-            ) : (
-                <>
-                    <div className="mt-4">No hay stock</div>
-                    <Link to="/">
-                        <Button variant="outline-primary" className="mt-4">
-                            Seguir comprando
-                        </Button>
-                    </Link>
-                </>
-            )}
-        </section>
-    )
+  return (
+    <div className="d-flex flex-column align-items-center gap-2 w-100">
+      <InputGroup className="w-100">
+        <Button variant="outline-secondary" onClick={decrease} disabled={count <= 1}>
+          −
+        </Button>
+        <Form.Control
+          type="number"
+          min="1"
+          max={stock}
+          value={count}
+          onChange={handleChange}
+          style={{ textAlign: "center", fontWeight: 600 }}
+        />
+        <Button variant="outline-secondary" onClick={increase} disabled={count >= stock}>
+          +
+        </Button>
+      </InputGroup>
+      <Button
+        variant="primary"
+        disabled={stock === 0}
+        onClick={() => onAdd(count)}
+        className="w-100 fw-bold"
+      >
+        {stock === 0 ? "Sin stock" : `Agregar ${count} al carrito`}
+      </Button>
+      <p className="text-muted small mb-0">Stock disponible: {stock}</p>
+    </div>
+  )
 }

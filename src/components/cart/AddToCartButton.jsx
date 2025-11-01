@@ -1,68 +1,45 @@
-import { useState, useContext, useMemo } from "react"
-import { Button, InputGroup, Form, Toast, ToastContainer } from "react-bootstrap"
+import { useState, useContext } from "react"
+import { Toast, ToastContainer } from "react-bootstrap"
 import { CartContext } from "./CartContext"
+import { ItemCount } from "../item/ItemCount"
 
-export const AddToCartButton = ({ product, defaultQty = 1 }) => {
+export const AddToCartButton = ({ product }) => {
   const { addItem } = useContext(CartContext)
-  const [qty, setQty] = useState(defaultQty)
-  const [showToast, setShowToast] = useState(false)
+  const [toast, setToast] = useState({ show: false, msg: "", variant: "light" })
 
-  const max = useMemo(() => (Number(product?.stock) > 0 ? Number(product.stock) : 1), [product?.stock])
-  const disabled = product?.stock === 0
-
-  const inc = () => setQty(q => Math.min(q + 1, max))
-  const dec = () => setQty(q => Math.max(q - 1, 1))
-  const onChange = e => {
-    const v = Number(e.target.value || 1)
-    if (!Number.isNaN(v)) setQty(Math.min(Math.max(v, 1), max))
-  }
-  const handleAdd = () => {
-    if (!product?.id) return
-    addItem(product, qty)
-    setShowToast(true)
+  const handleAdd = async quantity => {
+    const res = await addItem(product, quantity)
+    if (res.ok) {
+      setToast({
+        show: true,
+        msg: `${quantity} × ${product.name} agregado(s) al carrito`,
+        variant: "light",
+      })
+    } else {
+      setToast({
+        show: true,
+        msg: res.error || "No hay suficiente stock disponible",
+        variant: "danger",
+      })
+    }
   }
 
   return (
     <>
-      <div className="d-grid gap-2 w-100">
-        <div className="w-100">
-          <label className="form-label mb-1" style={{ fontWeight: 600 }}>Cantidad</label>
-          <InputGroup className="w-100">
-            <Button variant="outline-secondary" onClick={dec} disabled={disabled}>−</Button>
-            <Form.Control
-              type="number"
-              value={qty}
-              onChange={onChange}
-              min={1}
-              max={max}
-              disabled={disabled}
-              style={{ textAlign: "center", fontWeight: 600 }}
-            />
-            <Button variant="outline-secondary" onClick={inc} disabled={disabled}>+</Button>
-          </InputGroup>
-          <div className="text-muted mt-1" style={{ fontSize: 12 }}>
-            Stock disponible: {product?.stock ?? 0}
-          </div>
-        </div>
-
-        <Button
-          variant="primary"
-          onClick={handleAdd}
-          disabled={disabled}
-          className="w-100"
-          style={{ fontWeight: 600 }}
-        >
-          {disabled ? "Sin stock" : `Agregar al carrito (${qty})`}
-        </Button>
-      </div>
+      <ItemCount stock={product.stock ?? 0} initial={1} onAdd={handleAdd} />
 
       <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 1060 }}>
-        <Toast bg="light" onClose={() => setShowToast(false)} show={showToast} delay={1600} autohide>
-          <Toast.Header closeButton>
+        <Toast
+          bg={toast.variant}
+          onClose={() => setToast(s => ({ ...s, show: false }))}
+          show={toast.show}
+          delay={2000}
+          autohide
+        >
+          <Toast.Header>
             <strong className="me-auto">Carrito</strong>
-            <small>✔ agregado</small>
           </Toast.Header>
-          <Toast.Body>{qty}× <strong>{product?.name}</strong> agregado(s)</Toast.Body>
+          <Toast.Body>{toast.msg}</Toast.Body>
         </Toast>
       </ToastContainer>
     </>
