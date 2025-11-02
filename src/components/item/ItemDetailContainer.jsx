@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { Container, Spinner } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { db } from "../../firebase";
@@ -9,31 +9,40 @@ export const ItemDetailContainer = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { id } = useParams(); 
+  const { id } = useParams();
 
   useEffect(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    if (!id) return;
 
-        const snap = await getDoc(doc(db, "items", id));
-        if (snap.exists()) {
-          setProduct({ id: snap.id, ...snap.data() });
+    const ref = doc(db, "items", id);
+
+    const unsubscribe = onSnapshot(
+      ref,
+      snapshot => {
+        if (snapshot.exists()) {
+          setProduct({ id: snapshot.id, ...snapshot.data() });
+          setError(null);
         } else {
           setError("El producto no existe.");
         }
-      } catch {
+        setLoading(false);
+      },
+      err => {
+        console.error(err);
         setError("Error al cargar el producto.");
-      } finally {
         setLoading(false);
       }
-    })();
+    );
+
+    return () => unsubscribe();
   }, [id]);
 
   if (loading) {
     return (
-      <Container className="d-flex justify-content-center align-items-center" style={{ height: "50vh" }}>
+      <Container
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "50vh" }}
+      >
         <Spinner animation="border" variant="primary" role="status">
           <span className="visually-hidden">Cargando producto...</span>
         </Spinner>

@@ -13,7 +13,7 @@ import {
 import { getFirestore, collection, addDoc } from "firebase/firestore"
 
 export const Cart = () => {
-  const { productosAgregados, addItem, decreaseItem, deleteItem, clear } = useContext(CartContext)
+  const { productosAgregados, addItem, decreaseItem, deleteItem, clear, clearWithoutRestock } = useContext(CartContext)
   const [buyer, setBuyer] = useState({ name: "", email: "", phone: "" })
   const [sending, setSending] = useState(false)
   const [orderId, setOrderId] = useState(null)
@@ -27,7 +27,7 @@ export const Cart = () => {
 
   const handleQuantityChange = async (producto, change) => {
     if (change < 0) {
-      await decreaseItem(producto) 
+      await decreaseItem(producto)
       setToast({
         show: true,
         msg: `Se quitó una unidad de ${producto.name}`,
@@ -78,10 +78,10 @@ export const Cart = () => {
     try {
       const response = await addDoc(orderCollection, order)
       setOrderId(response.id)
-      clear()
+      clearWithoutRestock()
       setToast({
         show: true,
-        msg: "Compra realizada con éxito 🎉",
+        msg: "Compra realizada con éxito",
         variant: "success",
       })
     } catch (error) {
@@ -148,7 +148,6 @@ export const Cart = () => {
                       <Card.Text className="fw-bold">
                         ${producto.price.toLocaleString()}
                       </Card.Text>
-
                       <div className="d-flex align-items-center gap-2">
                         <Button
                           variant="outline-secondary"
@@ -169,27 +168,24 @@ export const Cart = () => {
                         </Button>
                       </div>
                     </div>
-
                     <Button
                       variant="outline-danger"
                       size="sm"
                       onClick={() => deleteItem(producto.id)}
                     >
-                      🗑
+                      Eliminar
                     </Button>
                   </Card.Body>
                 </Col>
               </Row>
             </Card>
           ))}
-
           <div className="d-flex justify-content-between mt-3">
             <Button variant="outline-secondary" onClick={clear}>
               Vaciar carrito
             </Button>
           </div>
         </Col>
-
         <Col lg={4}>
           <Card className="shadow-sm border-0 sticky-top" style={{ top: "6rem" }}>
             <Card.Body>
@@ -207,7 +203,6 @@ export const Cart = () => {
                 <span>Total</span>
                 <span>${total().toLocaleString()}</span>
               </div>
-
               <Form className="mt-4">
                 <Form.Group className="mb-3">
                   <Form.Label>Nombre completo</Form.Label>
@@ -242,7 +237,6 @@ export const Cart = () => {
                     required
                   />
                 </Form.Group>
-
                 <Button
                   variant="primary"
                   className="w-100"
@@ -257,7 +251,6 @@ export const Cart = () => {
           </Card>
         </Col>
       </Row>
-
       <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 1060 }}>
         <Toast
           bg={toast.variant}

@@ -92,5 +92,9 @@ export const useCart = () => {
     }
   }
 
-  return { productosAgregados, addItem, decreaseItem, deleteItem, clear }
+  const clearWithoutRestock = () => {
+  setProductosAgregados([])
+}
+
+  return { productosAgregados, addItem, decreaseItem, deleteItem, clear, clearWithoutRestock  }
 }
